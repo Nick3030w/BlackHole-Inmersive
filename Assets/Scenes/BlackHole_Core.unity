@@ -10771,6 +10771,7 @@ GameObject:
   - component: {fileID: 1086983433}
   - component: {fileID: 1086983432}
   - component: {fileID: 1086983431}
+  - component: {fileID: 1086983435}
   m_Layer: 0
   m_Name: BlackHole
   m_TagString: Untagged
@@ -10866,6 +10867,23 @@ Transform:
   - {fileID: 681158099}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1086983435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086983430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ccc641fad0d6a040bb132b5dc4ffb91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gravityStrength: 10
+  eventHorizonRadius: 5
+  gravityRadius: 30
+  player: {fileID: 106355766}
+  educationalPanel: {fileID: 0}
 --- !u!1 &1120117614
 GameObject:
   m_ObjectHideFlags: 0
