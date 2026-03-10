@@ -1,35 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Unity.XR.CoreUtils;
 
 public class BlackHoleGravity : MonoBehaviour
 {
     [Header("Gravedad")]
-    public float gravityStrength = 10f;
+    public float gravityStrength = 15f;
     public float eventHorizonRadius = 5f;
     public float gravityRadius = 30f;
 
     [Header("Referencias")]
-    public Transform player;
+    public Transform cameraOffset;
     public GameObject educationalPanel;
 
     private bool playerCaptured = false;
 
     void Update()
     {
-        if (player == null || playerCaptured) return;
+        if (cameraOffset == null || playerCaptured) return;
 
-        float distance = Vector3.Distance(transform.position, player.position);
+        Vector3 playerPos = cameraOffset.position;
+        float distance = Vector3.Distance(transform.position, playerPos);
 
-        // Aplicar gravedad si el jugador está dentro del radio
+        
         if (distance < gravityRadius)
         {
-            Vector3 direction = (transform.position - player.position).normalized;
-            float force = gravityStrength / (distance * distance);
-            player.position += direction * force * Time.deltaTime;
+            Vector3 direction = (transform.position - playerPos).normalized;
+            float force = gravityStrength * Time.deltaTime;
+            Debug.Log("Distancia: " + distance + " Fuerza: " + force);
+            cameraOffset.position += direction * force;
+            
+            
         }
 
-        // Horizonte de sucesos
         if (distance < eventHorizonRadius && !playerCaptured)
         {
             playerCaptured = true;
