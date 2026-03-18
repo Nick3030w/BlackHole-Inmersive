@@ -13,13 +13,6 @@
 
 ---
 
-## 📸 Capturas / Demo
-
-> FALTA AGREGAR CAPTURAS_
-> Ejemplo: `![Gameplay](./Screenshots/gameplay.png)`
-
----
-
 ## 🌌 Descripción
 
 **Black Hole Immersive Experience** es un videojuego educativo desarrollado en **Unity 2022.3** como proyecto de grado. El jugador embarca en un viaje al interior de un agujero negro, y durante el trayecto el juego presenta conceptos científicos reales de forma visual, interactiva y envolvente.
