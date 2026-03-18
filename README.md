@@ -95,7 +95,7 @@ git clone https://github.com/Nick3030w/Black-Hole-Immersive-Experience.git
 ## 🗺️ Estado del proyecto
 
 ```
-[██████░░░░░░░░░░░░░░] ~30% — Prototipo en desarrollo
+[██░░░░░░░░░░░░░░] ~15% — Prototipo en desarrollo
 ```
 
 - [x] Concepto y diseño educativo
