@@ -131,8 +131,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 50831514}
-  - component: {fileID: 50831513}
   - component: {fileID: 50831512}
+  - component: {fileID: 50831515}
   m_Layer: 0
   m_Name: NarrationManager
   m_TagString: Untagged
@@ -236,46 +236,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &50831513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 50831511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97e4d395fe63d7e44885ab9fc963676d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zonas:
-  - titulo: 
-    subtitulo: "La luz viaja a 299,792 km/s en el vac\xEDo.\r\nNada en el universo
-      puede superarla."
-    audio: {fileID: 0}
-    reproducido: 0
-  - titulo: 
-    subtitulo: 'La gravedad curva el espacio-tiempo.
-
-      La luz sigue esa curvatura
-      al pasar
-
-      cerca de objetos masivos.'
-    audio: {fileID: 0}
-    reproducido: 0
-  - titulo: 
-    subtitulo: "El disco de acreci\xF3n es gas y polvo\r\ngirando a velocidades extremas.\r\nLas
-      altas temperaturas lo hacen brillar."
-    audio: {fileID: 0}
-    reproducido: 0
-  - titulo: 
-    subtitulo: "El horizonte de sucesos es el punto\r\nde no retorno. M\xE1s all\xE1,
-      ni la luz\r\npuede escapar de la gravedad."
-    audio: {fileID: 0}
-    reproducido: 0
-  panelSubtitulos: {fileID: 926413059}
-  textoSubtitulo: {fileID: 266171764}
-  audioSource: {fileID: 50831512}
 --- !u!4 &50831514
 Transform:
   m_ObjectHideFlags: 0
@@ -291,6 +251,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &50831515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50831511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97e4d395fe63d7e44885ab9fc963676d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zonas:
+  - titulo: 
+    subtitulo: 
+    audio: {fileID: 0}
+    reproducido: 0
+  - titulo: 
+    subtitulo: 
+    audio: {fileID: 0}
+    reproducido: 0
+  - titulo: 
+    subtitulo: 
+    audio: {fileID: 0}
+    reproducido: 0
+  - titulo: 
+    subtitulo: 
+    audio: {fileID: 0}
+    reproducido: 0
+  panelSubtitulos: {fileID: 0}
+  textoSubtitulo: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!1 &84995017
 GameObject:
   m_ObjectHideFlags: 0
@@ -5411,7 +5403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  narrationManager: {fileID: 50831513}
+  narrationManager: {fileID: 0}
   indiceZona: 2
 --- !u!135 &113704002
 SphereCollider:
@@ -5590,17 +5582,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 165402789}
   m_CullTransparentMesh: 1
---- !u!114 &266171764 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 11400004, guid: a93c012dd9ef6454fa7d140e976926f7, type: 3}
-  m_PrefabInstance: {fileID: 1016708850}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &404796712
 GameObject:
   m_ObjectHideFlags: 0
@@ -11680,7 +11661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  narrationManager: {fileID: 50831513}
+  narrationManager: {fileID: 0}
   indiceZona: 0
 --- !u!135 &1358460359
 SphereCollider:
@@ -11842,7 +11823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  narrationManager: {fileID: 50831513}
+  narrationManager: {fileID: 0}
   indiceZona: 3
 --- !u!135 &1403354237
 SphereCollider:
@@ -12002,7 +11983,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  narrationManager: {fileID: 50831513}
+  narrationManager: {fileID: 0}
   indiceZona: 1
 --- !u!135 &1481586728
 SphereCollider:

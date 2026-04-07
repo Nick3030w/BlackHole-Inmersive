@@ -11,7 +11,8 @@ public class NarrationManager : MonoBehaviour
         public string titulo;
         [TextArea] public string subtitulo;
         public AudioClip audio;
-        public bool reproducido = false;
+        public float distanciaActivacion = 10f;
+        [HideInInspector] public bool reproducido = false;
     }
 
     [Header("Zonas de narración")]
@@ -21,13 +22,31 @@ public class NarrationManager : MonoBehaviour
     public GameObject panelSubtitulos;
     public Text textoSubtitulo;
     public AudioSource audioSource;
+    public Transform[] posicionesZona;
+    public Transform jugador;
 
-    private float tiempoMostrar = 5f;
+    private float tiempoMostrar = 6f;
     private float temporizador = 0f;
     private bool mostrando = false;
 
     void Update()
     {
+        if (jugador == null) return;
+
+        for (int i = 0; i < zonas.Length; i++)
+        {
+            if (zonas[i].reproducido) continue;
+            if (i >= posicionesZona.Length) continue;
+
+            float distancia = Vector3.Distance(jugador.position, posicionesZona[i].position);
+
+            if (distancia < zonas[i].distanciaActivacion)
+            {
+                ActivarZona(i);
+                break;
+            }
+        }
+
         if (mostrando)
         {
             temporizador -= Time.deltaTime;
@@ -39,12 +58,9 @@ public class NarrationManager : MonoBehaviour
         }
     }
 
-    public void ActivarZona(int indice)
+    void ActivarZona(int indice)
     {
-        if (indice < 0 || indice >= zonas.Length) return;
         NarrationZone zona = zonas[indice];
-        if (zona.reproducido) return;
-
         zona.reproducido = true;
         textoSubtitulo.text = zona.subtitulo;
         panelSubtitulos.SetActive(true);
@@ -53,5 +69,7 @@ public class NarrationManager : MonoBehaviour
 
         if (zona.audio != null && audioSource != null)
             audioSource.PlayOneShot(zona.audio);
+
+        Debug.Log("Zona activada: " + indice);
     }
 }
