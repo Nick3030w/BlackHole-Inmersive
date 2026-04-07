@@ -35,11 +35,12 @@ public class NarrationManager : MonoBehaviour
 
         for (int i = 0; i < zonas.Length; i++)
         {
+            
             if (zonas[i].reproducido) continue;
             if (i >= posicionesZona.Length) continue;
 
             float distancia = Vector3.Distance(jugador.position, posicionesZona[i].position);
-
+            Debug.Log("Zona " + i + " distancia: " + distancia);
             if (distancia < zonas[i].distanciaActivacion)
             {
                 ActivarZona(i);

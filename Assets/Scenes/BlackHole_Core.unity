@@ -265,24 +265,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zonas:
   - titulo: 
-    subtitulo: 
+    subtitulo: "La luz viaja a 299,792 km/s en el vac\xEDo.\nNada en el universo
+      puede superarla."
     audio: {fileID: 0}
+    distanciaActivacion: 8
     reproducido: 0
   - titulo: 
-    subtitulo: 
+    subtitulo: 'La gravedad curva el espacio-tiempo.
+
+      La luz sigue esa curvatura
+      al pasar
+
+      cerca de objetos masivos.'
     audio: {fileID: 0}
+    distanciaActivacion: 8
     reproducido: 0
   - titulo: 
-    subtitulo: 
+    subtitulo: "El disco de acreci\xF3n es gas y polvo\r\ngirando a velocidades extremas.\r\nLas
+      altas temperaturas lo hacen brillar."
     audio: {fileID: 0}
+    distanciaActivacion: 8
     reproducido: 0
   - titulo: 
-    subtitulo: 
+    subtitulo: "El horizonte de sucesos es el punto\r\nde no retorno. M\xE1s all\xE1,
+      ni la luz\r\npuede escapar de la gravedad."
     audio: {fileID: 0}
+    distanciaActivacion: 8
     reproducido: 0
-  panelSubtitulos: {fileID: 0}
-  textoSubtitulo: {fileID: 0}
-  audioSource: {fileID: 0}
+  panelSubtitulos: {fileID: 926413059}
+  textoSubtitulo: {fileID: 2015976165}
+  audioSource: {fileID: 50831512}
+  posicionesZona:
+  - {fileID: 1358460360}
+  - {fileID: 1481586729}
+  - {fileID: 113704003}
+  - {fileID: 1403354238}
+  jugador: {fileID: 1680088762}
 --- !u!1 &84995017
 GameObject:
   m_ObjectHideFlags: 0
@@ -5383,7 +5401,6 @@ GameObject:
   m_Component:
   - component: {fileID: 113704003}
   - component: {fileID: 113704002}
-  - component: {fileID: 113704001}
   m_Layer: 0
   m_Name: ZonaNarracion_3
   m_TagString: Untagged
@@ -5391,20 +5408,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &113704001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 113704000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  narrationManager: {fileID: 0}
-  indiceZona: 2
 --- !u!135 &113704002
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11641,7 +11644,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1358460360}
   - component: {fileID: 1358460359}
-  - component: {fileID: 1358460358}
   m_Layer: 0
   m_Name: ZonaNarracion_1
   m_TagString: Untagged
@@ -11649,20 +11651,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1358460358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1358460357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  narrationManager: {fileID: 0}
-  indiceZona: 0
 --- !u!135 &1358460359
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11803,7 +11791,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1403354238}
   - component: {fileID: 1403354237}
-  - component: {fileID: 1403354236}
   m_Layer: 0
   m_Name: ZonaNarracion_4
   m_TagString: Untagged
@@ -11811,20 +11798,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1403354236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1403354235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  narrationManager: {fileID: 0}
-  indiceZona: 3
 --- !u!135 &1403354237
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11963,7 +11936,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1481586729}
   - component: {fileID: 1481586728}
-  - component: {fileID: 1481586727}
   m_Layer: 0
   m_Name: ZonaNarracion_2
   m_TagString: Untagged
@@ -11971,20 +11943,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1481586727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1481586726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ce48f1c89e06b841bb05433315450c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  narrationManager: {fileID: 0}
-  indiceZona: 1
 --- !u!135 &1481586728
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -17755,6 +17713,17 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
+--- !u!114 &2015976165 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 11400004, guid: a93c012dd9ef6454fa7d140e976926f7, type: 3}
+  m_PrefabInstance: {fileID: 1016708850}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2029657828
 GameObject:
   m_ObjectHideFlags: 0
