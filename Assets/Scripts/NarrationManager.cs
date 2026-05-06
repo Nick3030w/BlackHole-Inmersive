@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +9,7 @@ public class NarrationManager : MonoBehaviour
         public string titulo;
         [TextArea] public string subtitulo;
         public AudioClip audio;
-        public float distanciaActivacion = 10f;
+        public float distanciaActivacion = 50f;
         [HideInInspector] public bool reproducido = false;
     }
 
@@ -29,18 +27,25 @@ public class NarrationManager : MonoBehaviour
     private float temporizador = 0f;
     private bool mostrando = false;
 
+    void Start()
+    {
+        Debug.Log("NarrationManager iniciado");
+        if (jugador == null) Debug.LogError("JUGADOR NO ASIGNADO");
+        if (panelSubtitulos == null) Debug.LogError("PANEL NO ASIGNADO");
+        if (textoSubtitulo == null) Debug.LogError("TEXTO NO ASIGNADO");
+    }
+
     void Update()
     {
         if (jugador == null) return;
 
         for (int i = 0; i < zonas.Length; i++)
         {
-            
             if (zonas[i].reproducido) continue;
             if (i >= posicionesZona.Length) continue;
 
             float distancia = Vector3.Distance(jugador.position, posicionesZona[i].position);
-            Debug.Log("Zona " + i + " distancia: " + distancia);
+
             if (distancia < zonas[i].distanciaActivacion)
             {
                 ActivarZona(i);
@@ -67,10 +72,9 @@ public class NarrationManager : MonoBehaviour
         panelSubtitulos.SetActive(true);
         mostrando = true;
         temporizador = tiempoMostrar;
+        Debug.Log("ZONA ACTIVADA: " + indice + " texto: " + zona.subtitulo);
 
         if (zona.audio != null && audioSource != null)
             audioSource.PlayOneShot(zona.audio);
-
-        Debug.Log("Zona activada: " + indice);
     }
 }
