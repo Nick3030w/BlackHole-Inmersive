@@ -13,6 +13,8 @@ public class FacePlayer : MonoBehaviour
         // Posicionar frente al jugador
         Vector3 direccion = player.forward;
         direccion.y = 0;
+        direccion.Normalize();
+        direccion.y = 0;
         transform.position = player.position + direccion * distanciaFrente + Vector3.up * alturaOffset;
 
         // Mirar hacia el jugador

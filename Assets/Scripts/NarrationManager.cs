@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class NarrationManager : MonoBehaviour
 {
@@ -18,12 +19,12 @@ public class NarrationManager : MonoBehaviour
 
     [Header("Referencias")]
     public GameObject panelSubtitulos;
-    public Text textoSubtitulo;
+    public Component textoSubtitulo;
     public AudioSource audioSource;
     public Transform[] posicionesZona;
     public Transform jugador;
 
-    private float tiempoMostrar = 6f;
+    private float tiempoMostrar = 12f;
     private float temporizador = 0f;
     private bool mostrando = false;
 
@@ -68,7 +69,16 @@ public class NarrationManager : MonoBehaviour
     {
         NarrationZone zona = zonas[indice];
         zona.reproducido = true;
-        textoSubtitulo.text = zona.subtitulo;
+
+        // Asignar texto compatible con TextMeshPro o Text legacy
+        if (textoSubtitulo != null)
+        {
+            if (textoSubtitulo is TextMeshProUGUI tmp)
+                tmp.text = zona.subtitulo;
+            else if (textoSubtitulo is Text txt)
+                txt.text = zona.subtitulo;
+        }
+
         panelSubtitulos.SetActive(true);
         mostrando = true;
         temporizador = tiempoMostrar;
