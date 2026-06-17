@@ -3,16 +3,14 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Script de configuración automática para la escena BlackHole_Core.
-/// Conecta todos los sistemas (gravedad, mensajes educativos, UI) al entrar en Play mode.
+/// Configuración automática de la escena BlackHole_Core.
+/// Crea el sistema educativo con panel anclado a la cámara del jugador.
 /// 
 /// INSTRUCCIONES:
-/// 1. Agregar este script a un GameObject vacío llamado "GameManager" en la escena BlackHole_Core
-/// 2. Asignar en el Inspector:
-///    - blackHoleTransform: el objeto del agujero negro
-///    - playerRig: el XR Origin o Camera Offset
-///    - playerCamera: la cámara principal del jugador (Main Camera dentro del XR Rig)
-/// 3. El script crea automáticamente la UI educativa si no existe
+/// 1. Agregar a un GameObject vacío "GameManager"
+/// 2. Asignar: blackHoleTransform, playerRig, playerCamera
+/// 3. IMPORTANTE: En el BlackHole existente, DESACTIVAR el componente BlackHoleGravity viejo
+///    (el que tiene "cameraOffset" asignado) para evitar conflictos.
 /// </summary>
 public class BlackHoleSceneSetup : MonoBehaviour
 {
@@ -20,14 +18,13 @@ public class BlackHoleSceneSetup : MonoBehaviour
     [Tooltip("Transform del objeto BlackHole en la escena")]
     public Transform blackHoleTransform;
 
-    [Tooltip("Transform del XR Origin / Camera Offset (lo que se mueve)")]
+    [Tooltip("Transform del Camera Offset (hijo del XR Origin, lo que se mueve)")]
     public Transform playerRig;
 
-    [Tooltip("Cámara principal del jugador (Main Camera)")]
+    [Tooltip("Cámara principal del jugador (Main Camera dentro de Camera Offset)")]
     public Transform playerCamera;
 
     [Header("Configuración Opcional")]
-    [Tooltip("AudioSource para narración (se crea automáticamente si no se asigna)")]
     public AudioSource audioSource;
 
     private BlackHoleGravity gravitySystem;
@@ -40,52 +37,50 @@ public class BlackHoleSceneSetup : MonoBehaviour
 
     void SetupSystems()
     {
-        // === 1. Configurar BlackHoleGravity ===
-        if (blackHoleTransform != null)
+        if (blackHoleTransform == null || playerRig == null || playerCamera == null)
         {
-            gravitySystem = blackHoleTransform.GetComponent<BlackHoleGravity>();
-            if (gravitySystem == null)
-                gravitySystem = blackHoleTransform.gameObject.AddComponent<BlackHoleGravity>();
-
-            gravitySystem.playerRig = playerRig;
-        }
-        else
-        {
-            Debug.LogError("[BlackHoleSceneSetup] blackHoleTransform no asignado!");
+            Debug.LogError("[BlackHoleSceneSetup] Referencias no asignadas! Asigna blackHoleTransform, playerRig y playerCamera.");
             return;
         }
 
-        // === 2. Crear AudioSource si no existe ===
+        // === 1. Configurar gravedad ===
+        // Buscar si ya existe un BlackHoleGravity con el campo nuevo "playerRig"
+        gravitySystem = blackHoleTransform.GetComponent<BlackHoleGravity>();
+        if (gravitySystem == null)
+            gravitySystem = blackHoleTransform.gameObject.AddComponent<BlackHoleGravity>();
+
+        gravitySystem.playerRig = playerRig;
+
+        // === 2. AudioSource ===
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 0f; // 2D para narración
+            audioSource.spatialBlend = 0f;
             audioSource.volume = 0.8f;
         }
 
-        // === 3. Crear UI Educativa ===
-        SetupEducationalUI();
+        // === 3. Crear UI Educativa anclada a la cámara ===
+        CreateEducationalUI();
 
-        Debug.Log("[BlackHoleSceneSetup] Todos los sistemas configurados correctamente.");
+        Debug.Log("[BlackHoleSceneSetup] Sistemas configurados. BlackHole en " + blackHoleTransform.position + ", PlayerRig en " + playerRig.position);
     }
 
-    void SetupEducationalUI()
+    void CreateEducationalUI()
     {
-        // Crear el Canvas en World Space
+        // === CANVAS WORLD SPACE ===
         GameObject canvasObj = new GameObject("EducationalCanvas");
-        canvasObj.transform.SetParent(transform);
+        // NO lo anclamos aquí — el EducationalMessageSystem lo hará a la cámara en Start()
 
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
 
         RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
-        canvasRect.sizeDelta = new Vector2(1.8f, 1f);
+        canvasRect.sizeDelta = new Vector2(1.4f, 0.7f);
         canvasRect.localScale = Vector3.one;
 
         canvasObj.AddComponent<CanvasScaler>();
-        canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Panel con CanvasGroup para animaciones de fade
+        // === PANEL PRINCIPAL ===
         GameObject panel = new GameObject("MessagePanel");
         panel.transform.SetParent(canvasObj.transform, false);
 
@@ -95,94 +90,86 @@ public class BlackHoleSceneSetup : MonoBehaviour
         panelRect.offsetMin = Vector2.zero;
         panelRect.offsetMax = Vector2.zero;
 
-        // Fondo semi-transparente azul oscuro espacial
+        // Fondo: gradiente oscuro espacial con transparencia
         Image bgImage = panel.AddComponent<Image>();
-        bgImage.color = new Color(0.01f, 0.02f, 0.06f, 0.88f);
+        bgImage.color = new Color(0.02f, 0.03f, 0.08f, 0.92f);
 
         CanvasGroup canvasGroup = panel.AddComponent<CanvasGroup>();
         canvasGroup.alpha = 0f;
 
-        // Borde luminoso (glow)
-        GameObject borderGlow = new GameObject("BorderGlow");
-        borderGlow.transform.SetParent(panel.transform, false);
-        RectTransform borderRect = borderGlow.AddComponent<RectTransform>();
-        borderRect.anchorMin = Vector2.zero;
-        borderRect.anchorMax = Vector2.one;
-        borderRect.offsetMin = new Vector2(-3, -3);
-        borderRect.offsetMax = new Vector2(3, 3);
-        Image borderImage = borderGlow.AddComponent<Image>();
-        borderImage.color = new Color(0.2f, 0.5f, 1f, 0.5f);
-        borderImage.raycastTarget = false;
-        borderGlow.transform.SetAsFirstSibling();
+        // === BORDE EXTERIOR — línea fina luminosa ===
+        CreateBorderLine(panel.transform, new Vector2(0, 0), new Vector2(1, 0.003f), new Color(0.3f, 0.7f, 1f, 0.8f)); // Bottom
+        CreateBorderLine(panel.transform, new Vector2(0, 0.997f), new Vector2(1, 1), new Color(0.3f, 0.7f, 1f, 0.8f)); // Top
+        CreateBorderLine(panel.transform, new Vector2(0, 0), new Vector2(0.003f, 1), new Color(0.3f, 0.7f, 1f, 0.6f)); // Left
+        CreateBorderLine(panel.transform, new Vector2(0.997f, 0), new Vector2(1, 1), new Color(0.3f, 0.7f, 1f, 0.6f)); // Right
 
-        // Línea decorativa superior
-        GameObject topLine = new GameObject("TopAccent");
-        topLine.transform.SetParent(panel.transform, false);
-        RectTransform topLineRect = topLine.AddComponent<RectTransform>();
-        topLineRect.anchorMin = new Vector2(0.15f, 0.88f);
-        topLineRect.anchorMax = new Vector2(0.85f, 0.89f);
-        topLineRect.offsetMin = Vector2.zero;
-        topLineRect.offsetMax = Vector2.zero;
-        Image topLineImg = topLine.AddComponent<Image>();
-        topLineImg.color = new Color(0.4f, 0.8f, 1f, 0.9f);
-        topLineImg.raycastTarget = false;
+        // === ESQUINAS DECORATIVAS (estilo HUD sci-fi) ===
+        CreateCornerAccent(panel.transform, new Vector2(0, 0.92f), new Vector2(0.15f, 0.925f)); // Top-Left
+        CreateCornerAccent(panel.transform, new Vector2(0.85f, 0.92f), new Vector2(1f, 0.925f)); // Top-Right
+        CreateCornerAccent(panel.transform, new Vector2(0, 0.075f), new Vector2(0.15f, 0.08f)); // Bottom-Left
+        CreateCornerAccent(panel.transform, new Vector2(0.85f, 0.075f), new Vector2(1f, 0.08f)); // Bottom-Right
 
-        // Texto del título
+        // === TÍTULO ===
         GameObject titleObj = new GameObject("TitleText");
         titleObj.transform.SetParent(panel.transform, false);
+
         RectTransform titleRect = titleObj.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.05f, 0.7f);
-        titleRect.anchorMax = new Vector2(0.95f, 0.87f);
+        titleRect.anchorMin = new Vector2(0.05f, 0.72f);
+        titleRect.anchorMax = new Vector2(0.95f, 0.92f);
         titleRect.offsetMin = Vector2.zero;
         titleRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI titleTMP = titleObj.AddComponent<TextMeshProUGUI>();
         titleTMP.text = "";
-        titleTMP.fontSize = 0.09f;
-        titleTMP.fontStyle = FontStyles.Bold | FontStyles.UpperCase;
+        titleTMP.fontSize = 0.07f;
+        titleTMP.fontStyle = FontStyles.Bold;
         titleTMP.alignment = TextAlignmentOptions.Center;
-        titleTMP.color = new Color(0.4f, 0.85f, 1f); // Cyan
+        titleTMP.color = new Color(0.6f, 0.9f, 1f); // Cyan claro
+        titleTMP.enableWordWrapping = true;
 
-        // Línea separadora
-        GameObject divider = new GameObject("Divider");
-        divider.transform.SetParent(panel.transform, false);
-        RectTransform divRect = divider.AddComponent<RectTransform>();
-        divRect.anchorMin = new Vector2(0.2f, 0.68f);
-        divRect.anchorMax = new Vector2(0.8f, 0.685f);
-        divRect.offsetMin = Vector2.zero;
-        divRect.offsetMax = Vector2.zero;
-        Image divImg = divider.AddComponent<Image>();
-        divImg.color = new Color(0.3f, 0.6f, 1f, 0.6f);
-        divImg.raycastTarget = false;
+        // === SEPARADOR HORIZONTAL ===
+        GameObject separator = new GameObject("Separator");
+        separator.transform.SetParent(panel.transform, false);
+        RectTransform sepRect = separator.AddComponent<RectTransform>();
+        sepRect.anchorMin = new Vector2(0.1f, 0.70f);
+        sepRect.anchorMax = new Vector2(0.9f, 0.705f);
+        sepRect.offsetMin = Vector2.zero;
+        sepRect.offsetMax = Vector2.zero;
+        Image sepImg = separator.AddComponent<Image>();
+        sepImg.color = new Color(0.4f, 0.7f, 1f, 0.5f);
+        sepImg.raycastTarget = false;
 
-        // Texto del contenido
+        // === CONTENIDO ===
         GameObject contentObj = new GameObject("ContentText");
         contentObj.transform.SetParent(panel.transform, false);
+
         RectTransform contentRect = contentObj.AddComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0.08f, 0.08f);
-        contentRect.anchorMax = new Vector2(0.92f, 0.65f);
+        contentRect.anchorMin = new Vector2(0.08f, 0.1f);
+        contentRect.anchorMax = new Vector2(0.92f, 0.68f);
         contentRect.offsetMin = Vector2.zero;
         contentRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI contentTMP = contentObj.AddComponent<TextMeshProUGUI>();
         contentTMP.text = "";
-        contentTMP.fontSize = 0.055f;
+        contentTMP.fontSize = 0.045f;
         contentTMP.alignment = TextAlignmentOptions.Center;
-        contentTMP.color = new Color(0.9f, 0.95f, 1f); // Blanco azulado
+        contentTMP.color = new Color(0.85f, 0.9f, 0.95f); // Blanco ligeramente azulado
+        contentTMP.enableWordWrapping = true;
+        contentTMP.lineSpacing = 10f;
 
-        // Línea decorativa inferior
-        GameObject bottomLine = new GameObject("BottomAccent");
-        bottomLine.transform.SetParent(panel.transform, false);
-        RectTransform bottomLineRect = bottomLine.AddComponent<RectTransform>();
-        bottomLineRect.anchorMin = new Vector2(0.15f, 0.05f);
-        bottomLineRect.anchorMax = new Vector2(0.85f, 0.06f);
-        bottomLineRect.offsetMin = Vector2.zero;
-        bottomLineRect.offsetMax = Vector2.zero;
-        Image bottomLineImg = bottomLine.AddComponent<Image>();
-        bottomLineImg.color = new Color(0.4f, 0.8f, 1f, 0.5f);
-        bottomLineImg.raycastTarget = false;
+        // === INDICADOR INFERIOR (pequeña barra animada) ===
+        GameObject indicator = new GameObject("BottomIndicator");
+        indicator.transform.SetParent(panel.transform, false);
+        RectTransform indRect = indicator.AddComponent<RectTransform>();
+        indRect.anchorMin = new Vector2(0.35f, 0.03f);
+        indRect.anchorMax = new Vector2(0.65f, 0.04f);
+        indRect.offsetMin = Vector2.zero;
+        indRect.offsetMax = Vector2.zero;
+        Image indImg = indicator.AddComponent<Image>();
+        indImg.color = new Color(0.3f, 0.6f, 1f, 0.4f);
+        indImg.raycastTarget = false;
 
-        // === 4. Configurar EducationalMessageSystem ===
+        // === CONFIGURAR EducationalMessageSystem ===
         messageSystem = gameObject.AddComponent<EducationalMessageSystem>();
         messageSystem.mensajeCanvas = canvas;
         messageSystem.panelCanvasGroup = canvasGroup;
@@ -192,5 +179,33 @@ public class BlackHoleSceneSetup : MonoBehaviour
         messageSystem.blackHole = gravitySystem;
         messageSystem.audioSource = audioSource;
         messageSystem.playerCamera = playerCamera;
+    }
+
+    void CreateBorderLine(Transform parent, Vector2 anchorMin, Vector2 anchorMax, Color color)
+    {
+        GameObject line = new GameObject("Border");
+        line.transform.SetParent(parent, false);
+        RectTransform rect = line.AddComponent<RectTransform>();
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        Image img = line.AddComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+    }
+
+    void CreateCornerAccent(Transform parent, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        GameObject corner = new GameObject("CornerAccent");
+        corner.transform.SetParent(parent, false);
+        RectTransform rect = corner.AddComponent<RectTransform>();
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        Image img = corner.AddComponent<Image>();
+        img.color = new Color(0.5f, 0.85f, 1f, 0.7f);
+        img.raycastTarget = false;
     }
 }
