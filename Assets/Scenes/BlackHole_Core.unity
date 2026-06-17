@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &50831512
 AudioSource:
   m_ObjectHideFlags: 0
@@ -285,6 +285,7 @@ MonoBehaviour:
     distanciaActivacion: 20
     reproducido: 0
   panelSubtitulos: {fileID: 1532669010}
+  textoTitulo: {fileID: 0}
   textoSubtitulo: {fileID: 784087081}
   audioSource: {fileID: 50831512}
   posicionesZona:
@@ -293,6 +294,7 @@ MonoBehaviour:
   - {fileID: 113704003}
   - {fileID: 1403354238}
   jugador: {fileID: 1680088762}
+  tiempoMostrar: 12
 --- !u!1 &84995017
 GameObject:
   m_ObjectHideFlags: 0
@@ -11273,6 +11275,7 @@ GameObject:
   - component: {fileID: 1086983432}
   - component: {fileID: 1086983431}
   - component: {fileID: 1086983435}
+  - component: {fileID: 1086983436}
   m_Layer: 0
   m_Name: BlackHole
   m_TagString: Untagged
@@ -11383,8 +11386,36 @@ MonoBehaviour:
   gravityStrength: 0.3
   eventHorizonRadius: 5
   gravityRadius: 30
-  cameraOffset: {fileID: 1120117615}
+  maxForce: 20
+  timeDistortionIntensity: 0.3
+  playerRig: {fileID: 1680088762}
+  cameraOffset: {fileID: 0}
   educationalPanel: {fileID: 0}
+  currentDistance: 0
+  currentForce: 0
+--- !u!114 &1086983436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086983430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7cf8688f5d618042b3e5a7c94087d8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  accretionDisk: {fileID: 1605338173}
+  glowRing: {fileID: 681158099}
+  rimColor: {r: 1, g: 0.15743397, b: 0.10196078, a: 1}
+  rimPower: 2.5
+  innerColor: {r: 1, g: 0.9, b: 0.4, a: 1}
+  outerColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  edgeColor: {r: 0.6, g: 0.15, b: 0.9, a: 0.5}
+  diskBrightness: 2.5
+  scrollSpeed: 0.8
+  glowColor: {r: 1, g: 0.19999999, b: 0.38335302, a: 1}
+  glowIntensity: 4
 --- !u!1 &1120117614
 GameObject:
   m_ObjectHideFlags: 0
@@ -11867,6 +11898,54 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 1}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1569736211
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1569736213}
+  - component: {fileID: 1569736212}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1569736212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1569736211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e9bf8b8685b85044ad5186924f63e57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blackHoleTransform: {fileID: 1086983434}
+  playerRig: {fileID: 1120117615}
+  playerCamera: {fileID: 1436778310}
+  audioSource: {fileID: 0}
+--- !u!4 &1569736213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1569736211}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -11.500328, y: 0.590189, z: 11.499578}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1605338172
 GameObject:
   m_ObjectHideFlags: 0
@@ -17590,3 +17669,4 @@ SceneRoots:
   - {fileID: 1403354238}
   - {fileID: 50831514}
   - {fileID: 1532669014}
+  - {fileID: 1569736213}
