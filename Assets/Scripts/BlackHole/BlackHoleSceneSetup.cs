@@ -67,9 +67,11 @@ public class BlackHoleSceneSetup : MonoBehaviour
 
     void CreateEducationalUI()
     {
-        // === CANVAS WORLD SPACE ===
+        // === CANVAS WORLD SPACE (se queda en root, NO como hijo de la cámara) ===
         GameObject canvasObj = new GameObject("EducationalCanvas");
-        // NO lo anclamos aquí — el EducationalMessageSystem lo hará a la cámara en Start()
+        // Dejarlo en root para evitar problemas de escala/rotación heredada
+        canvasObj.transform.position = Vector3.zero;
+        canvasObj.transform.rotation = Quaternion.identity;
 
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;

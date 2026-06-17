@@ -24,21 +24,21 @@ public class BlackHoleAppearance : MonoBehaviour
 
     [Header("Configuración del Core")]
     [Tooltip("Color del borde del horizonte de eventos")]
-    public Color rimColor = new Color(0.1f, 0.3f, 1f, 1f);
+    public Color rimColor = new Color(1f, 0.4f, 0.05f, 1f);
 
     [Tooltip("Intensidad del rim")]
-    public float rimPower = 2.5f;
+    public float rimPower = 3.5f;
 
     [Header("Configuración del Disco de Acreción")]
-    public Color innerColor = new Color(1f, 0.9f, 0.4f, 1f);
-    public Color outerColor = new Color(1f, 0.4f, 0.1f, 1f);
-    public Color edgeColor = new Color(0.6f, 0.15f, 0.9f, 0.5f);
-    public float diskBrightness = 2.5f;
-    public float scrollSpeed = 0.8f;
+    public Color innerColor = new Color(1f, 0.95f, 0.7f, 1f);
+    public Color outerColor = new Color(1f, 0.5f, 0.1f, 1f);
+    public Color edgeColor = new Color(0.8f, 0.2f, 0.05f, 0.5f);
+    public float diskBrightness = 2.0f;
+    public float scrollSpeed = 0.6f;
 
     [Header("Configuración del Glow")]
-    public Color glowColor = new Color(0.2f, 0.4f, 1f, 1f);
-    public float glowIntensity = 4f;
+    public Color glowColor = new Color(1f, 0.6f, 0.1f, 1f);
+    public float glowIntensity = 3f;
 
     void Start()
     {
@@ -80,6 +80,7 @@ public class BlackHoleAppearance : MonoBehaviour
         blackHoleMat.SetColor("_MainColor", Color.black);
         blackHoleMat.SetColor("_RimColor", rimColor);
         blackHoleMat.SetFloat("_RimPower", rimPower);
+        blackHoleMat.SetFloat("_RimIntensity", 1.5f);
         renderer.material = blackHoleMat;
     }
 

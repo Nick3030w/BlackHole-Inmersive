@@ -4,8 +4,8 @@ using TMPro;
 using System.Collections;
 
 /// <summary>
-/// Sistema de mensajes educativos que se activan basándose en la distancia al agujero negro.
-/// El panel se posiciona como hijo de la cámara para GARANTIZAR que siempre esté frente al jugador.
+/// Sistema de mensajes educativos activados por distancia al agujero negro.
+/// El panel se fuerza CADA FRAME a estar frente a la cámara del jugador.
 /// </summary>
 public class EducationalMessageSystem : MonoBehaviour
 {
@@ -18,10 +18,7 @@ public class EducationalMessageSystem : MonoBehaviour
         public AudioClip audioNarración;
 
         [Header("Activación")]
-        [Tooltip("Distancia al agujero negro a la cual se activa este mensaje")]
         public float distanciaActivacion = 40f;
-
-        [Tooltip("Duración en segundos que el mensaje permanece visible")]
         public float duracion = 10f;
 
         [HideInInspector] public bool mostrado = false;
@@ -72,15 +69,14 @@ public class EducationalMessageSystem : MonoBehaviour
     public AudioSource audioSource;
     public Transform playerCamera;
 
-    [Header("Posicionamiento del Panel")]
-    [Tooltip("Distancia frente a la cámara donde aparece el panel")]
-    public float distanciaFrontal = 2.5f;
+    [Header("Posicionamiento")]
+    [Tooltip("Distancia del panel frente a la cámara")]
+    public float distanciaFrontal = 2.0f;
 
-    [Tooltip("Offset vertical (positivo = arriba, negativo = abajo)")]
-    public float offsetVertical = -0.3f;
+    [Tooltip("Offset vertical del panel")]
+    public float offsetVertical = -0.2f;
 
     [Header("Animación")]
-    [Tooltip("Duración del fade in/out en segundos")]
     public float fadeSpeed = 1.2f;
 
     private bool mostrandoMensaje = false;
@@ -94,19 +90,36 @@ public class EducationalMessageSystem : MonoBehaviour
             panelCanvasGroup.gameObject.SetActive(false);
         }
 
-        // Anclar el canvas como hijo de la cámara para que siempre esté frente al jugador
-        if (mensajeCanvas != null && playerCamera != null)
-        {
-            mensajeCanvas.transform.SetParent(playerCamera);
-            mensajeCanvas.transform.localPosition = new Vector3(0f, offsetVertical, distanciaFrontal);
-            mensajeCanvas.transform.localRotation = Quaternion.identity;
-        }
-
         if (blackHole != null)
         {
             blackHole.OnDistanceChanged += EvaluarMensajes;
             blackHole.OnPlayerCaptured += MostrarMensajeFinal;
         }
+
+        Debug.Log("[EducationalMessages] Iniciado. PlayerCamera: " + (playerCamera != null ? playerCamera.name : "NULL"));
+    }
+
+    void LateUpdate()
+    {
+        // Forzar posición del panel frente a la cámara CADA FRAME
+        if (!mostrandoMensaje) return;
+        if (playerCamera == null || mensajeCanvas == null) return;
+
+        // Obtener la posición y dirección de la cámara en espacio mundo
+        Vector3 camPos = playerCamera.position;
+        Vector3 camForward = playerCamera.forward;
+
+        // Calcular posición: frente a la cámara
+        Vector3 targetPos = camPos + camForward * distanciaFrontal;
+        targetPos.y += offsetVertical;
+
+        // Aplicar posición
+        mensajeCanvas.transform.position = targetPos;
+
+        // Rotación: el panel mira HACIA la cámara (para que sea legible)
+        mensajeCanvas.transform.rotation = Quaternion.LookRotation(
+            mensajeCanvas.transform.position - camPos
+        );
     }
 
     void EvaluarMensajes(float distancia)
@@ -128,19 +141,25 @@ public class EducationalMessageSystem : MonoBehaviour
     {
         mostrandoMensaje = true;
 
-        // Configurar contenido
+        // Contenido
         if (textoTitulo != null) textoTitulo.text = mensaje.titulo;
         if (textoContenido != null) textoContenido.text = mensaje.contenido;
 
-        // Asegurar posición frente a la cámara
-        if (mensajeCanvas != null)
+        // Posicionar inmediatamente
+        if (playerCamera != null && mensajeCanvas != null)
         {
-            mensajeCanvas.transform.localPosition = new Vector3(0f, offsetVertical, distanciaFrontal);
-            mensajeCanvas.transform.localRotation = Quaternion.identity;
+            Vector3 pos = playerCamera.position + playerCamera.forward * distanciaFrontal;
+            pos.y += offsetVertical;
+            mensajeCanvas.transform.position = pos;
+            mensajeCanvas.transform.rotation = Quaternion.LookRotation(
+                mensajeCanvas.transform.position - playerCamera.position
+            );
         }
 
-        // Activar panel
+        // Activar
         panelCanvasGroup.gameObject.SetActive(true);
+
+        Debug.Log("[EducationalMessages] Mostrando: " + mensaje.titulo + " en pos: " + mensajeCanvas.transform.position);
 
         // Fade In
         float t = 0f;
@@ -152,13 +171,11 @@ public class EducationalMessageSystem : MonoBehaviour
         }
         panelCanvasGroup.alpha = 1f;
 
-        // Reproducir audio
+        // Audio
         if (mensaje.audioNarración != null && audioSource != null)
-        {
             audioSource.PlayOneShot(mensaje.audioNarración);
-        }
 
-        // Esperar duración
+        // Duración
         yield return new WaitForSeconds(mensaje.duracion);
 
         // Fade Out
