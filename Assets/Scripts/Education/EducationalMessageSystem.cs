@@ -5,7 +5,7 @@ using System.Collections;
 
 /// <summary>
 /// Sistema de mensajes educativos que se activan basándose en la distancia al agujero negro.
-/// Los mensajes aparecen progresivamente conforme el jugador se acerca,
+/// Los mensajes aparecen entre el jugador y el agujero negro (la dirección natural de mirada),
 /// con animaciones de fade-in/out y diseño visual atractivo.
 /// </summary>
 public class EducationalMessageSystem : MonoBehaviour
@@ -82,26 +82,22 @@ public class EducationalMessageSystem : MonoBehaviour
     public AudioSource audioSource;
     public Transform playerCamera;
 
+    [Header("Configuración de Posicionamiento")]
+    [Tooltip("Distancia del panel frente al jugador (en metros)")]
+    public float distanciaPanel = 2.0f;
+
+    [Tooltip("Altura offset del panel respecto a los ojos del jugador")]
+    public float alturaPanel = 0f;
+
+    [Tooltip("Velocidad con la que el panel sigue al jugador")]
+    public float followSpeed = 10f;
+
     [Header("Configuración de Animación")]
     [Tooltip("Duración del fade in/out en segundos")]
     public float fadeSpeed = 1.5f;
 
-    [Tooltip("Distancia del panel frente al jugador")]
-    public float distanciaPanel = 2.5f;
-
-    [Tooltip("Altura offset del panel respecto a los ojos del jugador")]
-    public float alturaPanel = -0.1f;
-
-    [Tooltip("Velocidad con la que el panel sigue al jugador (mayor = más responsivo)")]
-    public float followSpeed = 8f;
-
-    [Tooltip("Si es true, el panel ignora la rotación vertical de la cámara")]
-    public bool mantenerHorizontal = true;
-
     private bool mostrandoMensaje = false;
     private Coroutine mensajeActual;
-    private Vector3 panelTargetPosition;
-    private bool panelInitialized = false;
 
     void Start()
     {
@@ -118,69 +114,55 @@ public class EducationalMessageSystem : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        // Mantener el canvas frente al jugador siempre que esté visible
-        if (mostrandoMensaje && playerCamera != null && mensajeCanvas != null)
-        {
-            PosicionarPanelFrenteAlJugador();
-        }
-    }
-
     void LateUpdate()
     {
-        // LateUpdate para que se aplique después de que la cámara se mueva
-        if (mostrandoMensaje && playerCamera != null && mensajeCanvas != null)
+        if (!mostrandoMensaje || playerCamera == null || mensajeCanvas == null) return;
+
+        // === POSICIONAMIENTO ===
+        // Calcular la dirección hacia el agujero negro (donde el jugador naturalmente mira)
+        Vector3 dirToBlackHole = Vector3.zero;
+
+        if (blackHole != null)
         {
-            // Suavizar la rotación para que siempre mire al jugador
-            Vector3 dirToPlayer = playerCamera.position - mensajeCanvas.transform.position;
-            if (dirToPlayer.sqrMagnitude > 0.001f)
-            {
-                Quaternion lookRot = Quaternion.LookRotation(-dirToPlayer);
-                mensajeCanvas.transform.rotation = Quaternion.Slerp(
-                    mensajeCanvas.transform.rotation,
-                    lookRot,
-                    Time.deltaTime * followSpeed
-                );
-            }
-        }
-    }
-
-    void PosicionarPanelFrenteAlJugador()
-    {
-        // Usar la dirección de mirada real de la cámara VR
-        Vector3 forward = playerCamera.forward;
-
-        if (mantenerHorizontal)
-        {
-            // Proyectar en el plano horizontal para evitar que el panel se vaya abajo/arriba
-            forward.y = 0f;
-
-            // Si el jugador mira completamente arriba o abajo, usar el forward del transform padre
-            if (forward.sqrMagnitude < 0.01f)
-                forward = playerCamera.parent != null ? playerCamera.parent.forward : Vector3.forward;
-
-            forward.Normalize();
+            dirToBlackHole = (blackHole.transform.position - playerCamera.position).normalized;
         }
 
-        // Calcular posición objetivo: frente al jugador a la distancia configurada
-        panelTargetPosition = playerCamera.position + forward * distanciaPanel;
-        panelTargetPosition.y = playerCamera.position.y + alturaPanel;
+        // Usar la dirección hacia el agujero negro como base,
+        // pero proyectada horizontalmente para que no se vaya abajo
+        Vector3 panelDirection;
 
-        if (!panelInitialized)
+        if (dirToBlackHole.sqrMagnitude > 0.01f)
         {
-            // Primera vez: posicionar instantáneamente
-            mensajeCanvas.transform.position = panelTargetPosition;
-            panelInitialized = true;
+            panelDirection = dirToBlackHole;
+            panelDirection.y = 0f; // Mantener horizontal
+            panelDirection.Normalize();
         }
         else
         {
-            // Seguir al jugador suavemente
-            mensajeCanvas.transform.position = Vector3.Lerp(
-                mensajeCanvas.transform.position,
-                panelTargetPosition,
-                Time.deltaTime * followSpeed
-            );
+            // Fallback: usar forward de la cámara
+            panelDirection = playerCamera.forward;
+            panelDirection.y = 0f;
+            panelDirection.Normalize();
+        }
+
+        // Posición objetivo: frente al jugador, en dirección al agujero negro
+        Vector3 targetPos = playerCamera.position + panelDirection * distanciaPanel;
+        targetPos.y = playerCamera.position.y + alturaPanel;
+
+        // Mover suavemente hacia la posición objetivo
+        mensajeCanvas.transform.position = Vector3.Lerp(
+            mensajeCanvas.transform.position,
+            targetPos,
+            Time.deltaTime * followSpeed
+        );
+
+        // === ROTACIÓN: siempre mirar al jugador ===
+        Vector3 lookDir = playerCamera.position - mensajeCanvas.transform.position;
+        lookDir.y = 0f; // Mantener el panel vertical (no inclinado)
+
+        if (lookDir.sqrMagnitude > 0.001f)
+        {
+            mensajeCanvas.transform.rotation = Quaternion.LookRotation(-lookDir, Vector3.up);
         }
     }
 
@@ -202,16 +184,33 @@ public class EducationalMessageSystem : MonoBehaviour
     IEnumerator MostrarMensajeCoroutine(EducationalMessage mensaje)
     {
         mostrandoMensaje = true;
-        panelInitialized = false; // Forzar reposicionamiento instantáneo al inicio
 
         // Configurar contenido
         if (textoTitulo != null) textoTitulo.text = mensaje.titulo;
         if (textoContenido != null) textoContenido.text = mensaje.contenido;
 
-        // Posicionar frente al jugador ANTES de mostrar
-        if (playerCamera != null)
+        // Posicionar instantáneamente frente al jugador antes de mostrar
+        if (playerCamera != null && mensajeCanvas != null)
         {
-            PosicionarPanelFrenteAlJugador();
+            Vector3 dir = Vector3.forward;
+
+            if (blackHole != null)
+            {
+                dir = (blackHole.transform.position - playerCamera.position).normalized;
+                dir.y = 0f;
+                if (dir.sqrMagnitude < 0.01f) dir = playerCamera.forward;
+                dir.Normalize();
+            }
+
+            Vector3 pos = playerCamera.position + dir * distanciaPanel;
+            pos.y = playerCamera.position.y + alturaPanel;
+            mensajeCanvas.transform.position = pos;
+
+            // Rotación: mirar al jugador
+            Vector3 lookDir = playerCamera.position - pos;
+            lookDir.y = 0f;
+            if (lookDir.sqrMagnitude > 0.001f)
+                mensajeCanvas.transform.rotation = Quaternion.LookRotation(-lookDir, Vector3.up);
         }
 
         // Activar panel
@@ -252,7 +251,6 @@ public class EducationalMessageSystem : MonoBehaviour
 
     void MostrarMensajeFinal()
     {
-        // Mensaje especial al ser capturado
         EducationalMessage mensajeFinal = new EducationalMessage
         {
             titulo = "SINGULARIDAD",
