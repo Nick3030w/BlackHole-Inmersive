@@ -87,13 +87,21 @@ public class EducationalMessageSystem : MonoBehaviour
     public float fadeSpeed = 1.5f;
 
     [Tooltip("Distancia del panel frente al jugador")]
-    public float distanciaPanel = 3f;
+    public float distanciaPanel = 2.5f;
 
-    [Tooltip("Altura offset del panel respecto a la vista del jugador")]
-    public float alturaPanel = 0.2f;
+    [Tooltip("Altura offset del panel respecto a los ojos del jugador")]
+    public float alturaPanel = -0.1f;
+
+    [Tooltip("Velocidad con la que el panel sigue al jugador (mayor = más responsivo)")]
+    public float followSpeed = 8f;
+
+    [Tooltip("Si es true, el panel ignora la rotación vertical de la cámara")]
+    public bool mantenerHorizontal = true;
 
     private bool mostrandoMensaje = false;
     private Coroutine mensajeActual;
+    private Vector3 panelTargetPosition;
+    private bool panelInitialized = false;
 
     void Start()
     {
@@ -112,31 +120,68 @@ public class EducationalMessageSystem : MonoBehaviour
 
     void Update()
     {
-        // Mantener el canvas frente al jugador
+        // Mantener el canvas frente al jugador siempre que esté visible
         if (mostrandoMensaje && playerCamera != null && mensajeCanvas != null)
         {
             PosicionarPanelFrenteAlJugador();
         }
     }
 
+    void LateUpdate()
+    {
+        // LateUpdate para que se aplique después de que la cámara se mueva
+        if (mostrandoMensaje && playerCamera != null && mensajeCanvas != null)
+        {
+            // Suavizar la rotación para que siempre mire al jugador
+            Vector3 dirToPlayer = playerCamera.position - mensajeCanvas.transform.position;
+            if (dirToPlayer.sqrMagnitude > 0.001f)
+            {
+                Quaternion lookRot = Quaternion.LookRotation(-dirToPlayer);
+                mensajeCanvas.transform.rotation = Quaternion.Slerp(
+                    mensajeCanvas.transform.rotation,
+                    lookRot,
+                    Time.deltaTime * followSpeed
+                );
+            }
+        }
+    }
+
     void PosicionarPanelFrenteAlJugador()
     {
+        // Usar la dirección de mirada real de la cámara VR
         Vector3 forward = playerCamera.forward;
-        forward.y = 0; // Mantener horizontal
-        forward.Normalize();
 
-        Vector3 posicion = playerCamera.position + forward * distanciaPanel;
-        posicion.y = playerCamera.position.y + alturaPanel;
+        if (mantenerHorizontal)
+        {
+            // Proyectar en el plano horizontal para evitar que el panel se vaya abajo/arriba
+            forward.y = 0f;
 
-        mensajeCanvas.transform.position = Vector3.Lerp(
-            mensajeCanvas.transform.position,
-            posicion,
-            Time.deltaTime * 3f
-        );
+            // Si el jugador mira completamente arriba o abajo, usar el forward del transform padre
+            if (forward.sqrMagnitude < 0.01f)
+                forward = playerCamera.parent != null ? playerCamera.parent.forward : Vector3.forward;
 
-        // Mirar hacia el jugador
-        mensajeCanvas.transform.LookAt(playerCamera);
-        mensajeCanvas.transform.Rotate(0, 180, 0);
+            forward.Normalize();
+        }
+
+        // Calcular posición objetivo: frente al jugador a la distancia configurada
+        panelTargetPosition = playerCamera.position + forward * distanciaPanel;
+        panelTargetPosition.y = playerCamera.position.y + alturaPanel;
+
+        if (!panelInitialized)
+        {
+            // Primera vez: posicionar instantáneamente
+            mensajeCanvas.transform.position = panelTargetPosition;
+            panelInitialized = true;
+        }
+        else
+        {
+            // Seguir al jugador suavemente
+            mensajeCanvas.transform.position = Vector3.Lerp(
+                mensajeCanvas.transform.position,
+                panelTargetPosition,
+                Time.deltaTime * followSpeed
+            );
+        }
     }
 
     void EvaluarMensajes(float distancia)
@@ -157,14 +202,17 @@ public class EducationalMessageSystem : MonoBehaviour
     IEnumerator MostrarMensajeCoroutine(EducationalMessage mensaje)
     {
         mostrandoMensaje = true;
+        panelInitialized = false; // Forzar reposicionamiento instantáneo al inicio
 
         // Configurar contenido
         if (textoTitulo != null) textoTitulo.text = mensaje.titulo;
         if (textoContenido != null) textoContenido.text = mensaje.contenido;
 
-        // Posicionar frente al jugador antes de mostrar
+        // Posicionar frente al jugador ANTES de mostrar
         if (playerCamera != null)
+        {
             PosicionarPanelFrenteAlJugador();
+        }
 
         // Activar panel
         panelCanvasGroup.gameObject.SetActive(true);
